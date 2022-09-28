@@ -19,8 +19,10 @@ const Home = () => {
       <h1>Home</h1>
       {user && (
         <div>
-          <h2>Welcome {user.displayName}</h2>
-          <img src={user.photoURL} alt="user.photoURL" className="avatar" />
+          <h2>
+            Welcome {user.displayName}
+            <img src={user.photoURL} alt="user.photoURL" className="avatar" />
+          </h2>
         </div>
       )}
       <button onClick={handleLogout} className="logoutBtn">logout</button>
