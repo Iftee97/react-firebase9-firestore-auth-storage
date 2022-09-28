@@ -82,7 +82,6 @@ const Signup = () => {
             value={displayName}
           />
         </label>
-
         <label>
           email:
           <input
@@ -91,7 +90,6 @@ const Signup = () => {
             value={email}
           />
         </label>
-
         <label>
           password:
           <input
@@ -100,7 +98,6 @@ const Signup = () => {
             value={password}
           />
         </label>
-
         <label>
           Profile Thumbnail:
           <input
@@ -108,7 +105,6 @@ const Signup = () => {
             onChange={(e) => setThumbnail(e.target.files[0])}
           />
         </label>
-
         <button type='submit'>signup</button>
         <p>already have an account? <Link to="/login">login</Link></p>
       </form>

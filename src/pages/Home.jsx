@@ -10,7 +10,6 @@ const Home = () => {
 
   const handleLogout = async () => {
     await signOut(auth)
-
     dispatch({ type: "LOGOUT" }) // dispatch LOGOUT action
   }
 
@@ -20,8 +19,13 @@ const Home = () => {
       {user && (
         <div>
           <h2>
-            Welcome {user.displayName}
-            <img src={user.photoURL} alt="user.photoURL" className="avatar" />
+            Welcome
+            <span className="username">{user.displayName}</span>
+            <img
+              src={user.photoURL}
+              alt="user.photoURL"
+              className="avatar"
+            />
           </h2>
         </div>
       )}

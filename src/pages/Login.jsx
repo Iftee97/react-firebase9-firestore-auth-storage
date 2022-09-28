@@ -13,9 +13,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
     const response = await signInWithEmailAndPassword(auth, email, password)
-
     dispatch({ type: "LOGIN", payload: response.user }) // dispatch LOGIN action
   }
 
@@ -31,7 +29,6 @@ const Login = () => {
             value={email}
           />
         </label>
-
         <label>
           password:
           <input
@@ -40,7 +37,6 @@ const Login = () => {
             value={password}
           />
         </label>
-
         <button type='submit'>login</button>
         <p>don't have an account? <Link to="/signup">signup</Link></p>
       </form>
