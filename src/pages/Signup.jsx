@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-// import { useNavigate } from 'react-router-dom'
+import { useAuthContext } from '../hooks/useAuthContext'
 
 // firebase imports
 import { db, auth, storage } from '../firebaseConfig/firebaseConfig'
@@ -8,11 +8,11 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"
 import { collection, addDoc } from "firebase/firestore"
 
 const Signup = () => {
+  const { dispatch } = useAuthContext()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [thumbnail, setThumbnail] = useState(null)
-  // const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,9 +35,11 @@ const Signup = () => {
           case 'paused':
             console.log('Upload is paused')
             break
+
           case 'running':
             console.log('Upload is running')
             break
+
           default:
             break
         }
@@ -54,10 +56,13 @@ const Signup = () => {
               photoURL: downloadURL,
               uid: response.user.uid
             }) // adding user info to firestore database in "users" collection
+
             await updateProfile(response.user, {
               displayName,
               photoURL: downloadURL
             }) // updating user profile with displayName and photoURL
+
+            dispatch({ type: "LOGIN", payload: response.user }) // dispatch LOGIN action
           }
         )
       }
