@@ -12,6 +12,8 @@ const Login = () => {
   const [password, setPassword] = useState('')
 
   const handleSubmit = async (e) => {
+    e.preventDefault()
+    
     const response = await signInWithEmailAndPassword(auth, email, password)
 
     dispatch({ type: "LOGIN", payload: response.user }) // dispatch LOGIN action
