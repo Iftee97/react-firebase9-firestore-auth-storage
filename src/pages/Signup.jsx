@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuthContext } from '../hooks/useAuthContext'
 
 // firebase imports
@@ -109,6 +110,7 @@ const Signup = () => {
         </label>
 
         <button type='submit'>signup</button>
+        <p>already have an account? <Link to="/login">login</Link></p>
       </form>
     </div>
   )

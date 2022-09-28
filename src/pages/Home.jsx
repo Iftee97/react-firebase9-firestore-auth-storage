@@ -17,8 +17,13 @@ const Home = () => {
   return (
     <div>
       <h1>Home</h1>
-      {user && <h2>Welcome {user.displayName}</h2>}
-      <button onClick={handleLogout}>logout</button>
+      {user && (
+        <div>
+          <h2>Welcome {user.displayName}</h2>
+          <img src={user.photoURL} alt="user.photoURL" className="avatar" />
+        </div>
+      )}
+      <button onClick={handleLogout} className="logoutBtn">logout</button>
     </div>
   )
 }
