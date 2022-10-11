@@ -20,10 +20,7 @@ import {
   getDownloadURL
 } from "firebase/storage"
 import {
-  collection,
-  addDoc,
-  getDoc,
-  doc
+  collection, addDoc
 } from "firebase/firestore"
 
 
@@ -97,25 +94,19 @@ const Signup = () => {
       const user = response.user
       console.log(`signed up user:`, user)
 
-      // Check for user in firestore db
-      const docSnapshot = await getDoc(doc(db, 'users', user.uid))
+      await addDoc(collection(db, "users"), {
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        uid: user.uid,
+      }) // adding user info to firestore database in "users" collection
 
-      // if user doesn't exist, add user to firestore db (basically sign up the user)
-      if (!docSnapshot.exists()) {
-        await addDoc(collection(db, "users"), {
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          uid: user.uid,
-        })
-      }
-
-      await updateProfile(response.user, {
+      await updateProfile(user, {
         displayName: user.displayName,
         photoURL: user.photoURL,
       }) // updating user profile with displayName and photoURL
 
-      dispatch({ type: "LOGIN", payload: response.user }) // dispatch LOGIN action
+      dispatch({ type: "LOGIN", payload: user }) // dispatch LOGIN action
 
       navigate('/')
     } catch (error) {
@@ -126,6 +117,7 @@ const Signup = () => {
   return (
     <div>
       <h1>Signup</h1>
+
       <form onSubmit={handleSubmit}>
         <label>
           username:
