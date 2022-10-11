@@ -36,3 +36,11 @@ label input {
 .username {
   margin: 0 1rem;
 }
+
+.oAuthSignUp {
+  margin-top: 2.5rem;
+}
+
+.oAuthSignUp>span {
+  margin-right: 1rem;
+}

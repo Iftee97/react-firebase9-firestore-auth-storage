@@ -21,11 +21,13 @@ const Home = () => {
           <h2>
             Welcome
             <span className="username">{user.displayName}</span>
-            <img
-              src={user.photoURL}
-              alt="user.photoURL"
-              className="avatar"
-            />
+            {user.photoURL && (
+              <img
+                src={user.photoURL}
+                alt="user.photoURL"
+                className="avatar"
+              />
+            )}
           </h2>
         </div>
       )}

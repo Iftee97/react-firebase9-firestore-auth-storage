@@ -1,12 +1,31 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../hooks/useAuthContext'
 
 // firebase imports
-import { db, auth, storage } from '../firebaseConfig/firebaseConfig'
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"
-import { collection, addDoc } from "firebase/firestore"
+import {
+  db,
+  auth,
+  storage
+} from '../firebaseConfig/firebaseConfig'
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider
+} from "firebase/auth"
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL
+} from "firebase/storage"
+import {
+  collection,
+  addDoc,
+  getDoc,
+  doc
+} from "firebase/firestore"
+
 
 const Signup = () => {
   const { dispatch } = useAuthContext()
@@ -14,6 +33,7 @@ const Signup = () => {
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [thumbnail, setThumbnail] = useState(null)
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -70,6 +90,39 @@ const Signup = () => {
     )
   }
 
+  const handleGoogleClick = async () => {
+    try {
+      const provider = new GoogleAuthProvider()
+      const response = await signInWithPopup(auth, provider)
+      const user = response.user
+      console.log(`signed up user:`, user)
+
+      // Check for user in firestore db
+      const docSnapshot = await getDoc(doc(db, 'users', user.uid))
+
+      // if user doesn't exist, add user to firestore db (basically sign up the user)
+      if (!docSnapshot.exists()) {
+        await addDoc(collection(db, "users"), {
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          uid: user.uid,
+        })
+      }
+
+      await updateProfile(response.user, {
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      }) // updating user profile with displayName and photoURL
+
+      dispatch({ type: "LOGIN", payload: response.user }) // dispatch LOGIN action
+
+      navigate('/')
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <div>
       <h1>Signup</h1>
@@ -108,6 +161,11 @@ const Signup = () => {
         <button type='submit'>signup</button>
         <p>already have an account? <Link to="/login">login</Link></p>
       </form>
+
+      <div className='oAuthSignUp'>
+        <span>or,</span>
+        <button onClick={handleGoogleClick}>signup with google</button>
+      </div>
     </div>
   )
 }
