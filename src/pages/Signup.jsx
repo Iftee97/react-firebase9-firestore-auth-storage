@@ -94,17 +94,14 @@ const Signup = () => {
       const user = response.user
       console.log(`signed up user:`, user)
 
+      // adding user info to firestore database in "users" collection
+      // updating profile is not necessary because google auth already has displayName and photoURL
       await addDoc(collection(db, "users"), {
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
         uid: user.uid,
-      }) // adding user info to firestore database in "users" collection
-
-      await updateProfile(user, {
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-      }) // updating user profile with displayName and photoURL
+      })
 
       dispatch({ type: "LOGIN", payload: user }) // dispatch LOGIN action
 
