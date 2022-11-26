@@ -8,19 +8,26 @@ import Signup from './pages/Signup'
 import Login from './pages/Login'
 
 const App = () => {
-  const { authIsReady, user } = useAuthContext()
+  const { user } = useAuthContext()
 
   return (
     <div className='app'>
-      {authIsReady && (
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
-            <Route path="/signup" element={user ? <Navigate to="/" /> : <Signup />} />
-            <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-          </Routes>
-        </BrowserRouter>
-      )}
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={user ? <Home /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/signup"
+            element={user ? <Navigate to="/" /> : <Signup />}
+          />
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/" /> : <Login />}
+          />
+        </Routes>
+      </BrowserRouter>
     </div>
   )
 }

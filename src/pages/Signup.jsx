@@ -20,8 +20,8 @@ import {
   getDownloadURL
 } from "firebase/storage"
 import {
-  collection,
-  addDoc
+  setDoc,
+  doc
 } from "firebase/firestore"
 
 
@@ -32,71 +32,61 @@ const Signup = () => {
   const [displayName, setDisplayName] = useState('')
   const [thumbnail, setThumbnail] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    try {
-      setLoading(true)
+    // sign up user
+    const response = await createUserWithEmailAndPassword(auth, email, password)
+    const user = response.user
 
-      // sign up user
-      const response = await createUserWithEmailAndPassword(auth, email, password)
-      console.log(response)
+    // create a unique image name
+    const date = new Date().getTime()
+    const storageRef = ref(storage, `${displayName + date}`)
 
-      // create a unique image name
-      const date = new Date().getTime()
-      const storageRef = ref(storage, `${displayName + date}`)
+    // upload image to firebase storage
+    const uploadTask = uploadBytesResumable(storageRef, thumbnail)
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        console.log('Upload is' + progress + '% done')
+        switch (snapshot.state) {
+          case 'paused':
+            console.log('Upload is paused')
+            break
 
-      // upload image to firebase storage
-      const uploadTask = uploadBytesResumable(storageRef, thumbnail)
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          console.log('Upload is' + progress + '% done')
-          switch (snapshot.state) {
-            case 'paused':
-              console.log('Upload is paused')
-              break
+          case 'running':
+            console.log('Upload is running')
+            break
 
-            case 'running':
-              console.log('Upload is running')
-              break
-
-            default:
-              break
-          }
-        },
-        (error) => {
-          console.log(error)
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(
-            async (downloadURL) => {
-              await addDoc(collection(db, "users"), {
-                email,
-                displayName,
-                photoURL: downloadURL,
-                uid: response.user.uid
-              }) // adding user info to firestore database in "users" collection
-
-              await updateProfile(response.user, {
-                displayName,
-                photoURL: downloadURL
-              }) // updating user profile with displayName and photoURL
-
-              dispatch({ type: "LOGIN", payload: response.user }) // dispatch LOGIN action
-            }
-          )
+          default:
+            break
         }
-      )
-    } catch (err) {
-      console.log(err)
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+      },
+      (error) => {
+        console.log(error)
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(
+          async (downloadURL) => {
+            await setDoc(doc(db, "users", user.uid), {
+              email,
+              displayName,
+              photoURL: downloadURL,
+              uid: user.uid
+            }) // adding user info to firestore database in "users" collection
+
+            await updateProfile(user, {
+              displayName,
+              photoURL: downloadURL
+            }) // updating user profile with displayName and photoURL
+
+            dispatch({ type: "LOGIN", payload: user }) // dispatch LOGIN action
+          }
+        )
+      }
+    )
   }
 
   const handleGoogleClick = async () => {
@@ -110,7 +100,7 @@ const Signup = () => {
 
       // adding user info to firestore database in "users" collection
       // updating profile is not necessary because google auth already has displayName and photoURL
-      await addDoc(collection(db, "users"), {
+      await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
@@ -165,7 +155,6 @@ const Signup = () => {
         </label>
         {!loading && <button type='submit'>signup</button>}
         {loading && <button disabled>loading...</button>}
-        {error && <p>{error}</p>}
         <p>already have an account? <Link to="/login">login</Link></p>
       </form>
 

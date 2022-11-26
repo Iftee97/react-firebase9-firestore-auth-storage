@@ -1,13 +1,6 @@
 import { createContext, useReducer, useEffect } from 'react'
-import { auth } from '../firebaseConfig/firebaseConfig'
-import { onAuthStateChanged } from 'firebase/auth'
 
 export const AuthContext = createContext()
-
-// let initialState = {
-//   user: null,
-//   authIsReady: false
-// }
 
 export const authReducer = (state, action) => {
   switch (action.type) {
@@ -35,21 +28,16 @@ export const authReducer = (state, action) => {
 }
 
 export const AuthContextProvider = ({ children }) => {
-  // const [state, dispatch] = useReducer(authReducer, initialState) // this could be used instead of the below
   const [state, dispatch] = useReducer(authReducer, {
-    user: null,
-    authIsReady: false
+    user: JSON.parse(localStorage.getItem("user")) || null
   })
 
   // the following code handles weird auth status behaviors on refresh
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      dispatch({ type: 'AUTH_IS_READY', payload: user })
-      unsubscribe()
-    })
-  }, [])
+    localStorage.setItem("user", JSON.stringify(state.user))
+  }, [state.user])
 
-  // console.log('AuthContext state:', state)
+  console.log('AuthContext state:', state)
 
   return (
     <AuthContext.Provider value={{ ...state, dispatch }}>
